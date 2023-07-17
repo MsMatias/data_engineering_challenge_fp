@@ -1,0 +1,281 @@
+[
+    {
+        "id": "cb8c90d298272626",
+        "type": "tab",
+        "label": "Workmachines",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3906849e7a9817e5",
+        "type": "redis-config",
+        "name": "Local",
+        "options": "{\"port\":6379,\"host\":\"redis\",\"db\":6}",
+        "cluster": false,
+        "optionsType": "json"
+    },
+    {
+        "id": "65d13f6c0a552d8f",
+        "type": "postgreSQLConfig",
+        "name": "",
+        "host": "postgres",
+        "hostFieldType": "str",
+        "port": "5432",
+        "portFieldType": "num",
+        "database": "postgres",
+        "databaseFieldType": "str",
+        "ssl": "false",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": "10",
+        "maxFieldType": "num",
+        "idle": "1000",
+        "idleFieldType": "num",
+        "connectionTimeout": "10000",
+        "connectionTimeoutFieldType": "num",
+        "user": "airflow",
+        "userFieldType": "str",
+        "password": "airflow",
+        "passwordFieldType": "str"
+    },
+    {
+        "id": "395c6f08f2461e04",
+        "type": "redis-in",
+        "z": "cb8c90d298272626",
+        "server": "3906849e7a9817e5",
+        "command": "subscribe",
+        "name": "",
+        "topic": "workorders",
+        "obj": true,
+        "timeout": "10",
+        "x": 90,
+        "y": 120,
+        "wires": [
+            [
+                "97a2618c4d496f77"
+            ]
+        ]
+    },
+    {
+        "id": "f5a39a50a1170f0f",
+        "type": "postgresql",
+        "z": "cb8c90d298272626",
+        "name": "",
+        "query": "",
+        "postgreSQLConfig": "65d13f6c0a552d8f",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 650,
+        "y": 120,
+        "wires": [
+            [
+                "72ad6efb3a5a1396"
+            ]
+        ]
+    },
+    {
+        "id": "72ad6efb3a5a1396",
+        "type": "debug",
+        "z": "cb8c90d298272626",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload[0].count",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "795c51d1b60b1dea",
+        "type": "function",
+        "z": "cb8c90d298272626",
+        "name": "querybuild",
+        "func": "const data = msg.payload.map((r) => {\n    return `(to_timestamp(${r.time}), ${r.product}, ${r.production})`;\n})\nconst values = data.join(',');\nmsg.query = `INSERT INTO \npublic.workorders(time, product, production) VALUES \n${values};\nSELECT COUNT(time) FROM public.workorders;\n`\nmsg.payload = msg.query\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 60,
+        "wires": [
+            [
+                "f5a39a50a1170f0f"
+            ]
+        ]
+    },
+    {
+        "id": "2d778af15bfcc6fe",
+        "type": "join",
+        "z": "cb8c90d298272626",
+        "name": "",
+        "mode": "auto",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": true,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 350,
+        "y": 120,
+        "wires": [
+            [
+                "795c51d1b60b1dea"
+            ]
+        ]
+    },
+    {
+        "id": "97a2618c4d496f77",
+        "type": "batch",
+        "z": "cb8c90d298272626",
+        "name": "",
+        "mode": "interval",
+        "count": "16",
+        "overlap": "0",
+        "interval": "10",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 210,
+        "y": 60,
+        "wires": [
+            [
+                "2d778af15bfcc6fe"
+            ]
+        ]
+    },
+    {
+        "id": "67a8e521c557c3d3",
+        "type": "redis-in",
+        "z": "cb8c90d298272626",
+        "server": "3906849e7a9817e5",
+        "command": "subscribe",
+        "name": "",
+        "topic": "metrics",
+        "obj": true,
+        "timeout": "10",
+        "x": 70,
+        "y": 260,
+        "wires": [
+            [
+                "417f13928daadf20"
+            ]
+        ]
+    },
+    {
+        "id": "6a1c27e662c782aa",
+        "type": "postgresql",
+        "z": "cb8c90d298272626",
+        "name": "",
+        "query": "",
+        "postgreSQLConfig": "65d13f6c0a552d8f",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 650,
+        "y": 260,
+        "wires": [
+            [
+                "723687fc32b40ec7"
+            ]
+        ]
+    },
+    {
+        "id": "723687fc32b40ec7",
+        "type": "debug",
+        "z": "cb8c90d298272626",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload[0].count",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "de49202347660163",
+        "type": "function",
+        "z": "cb8c90d298272626",
+        "name": "querybuild",
+        "func": "const data = msg.payload.map((r) => {\n    return `(${r.id}, ${r.val}, to_timestamp(${r.time}))`;\n})\nconst values = data.join(',');\nmsg.query = `INSERT INTO \npublic.metrics(id, val, time) VALUES \n${values};\nSELECT COUNT(time) FROM public.metrics;\n`\nmsg.payload = msg.query\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 200,
+        "wires": [
+            [
+                "6a1c27e662c782aa"
+            ]
+        ]
+    },
+    {
+        "id": "5e7de0f1911a3c93",
+        "type": "join",
+        "z": "cb8c90d298272626",
+        "name": "",
+        "mode": "auto",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": true,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 350,
+        "y": 260,
+        "wires": [
+            [
+                "de49202347660163"
+            ]
+        ]
+    },
+    {
+        "id": "417f13928daadf20",
+        "type": "batch",
+        "z": "cb8c90d298272626",
+        "name": "",
+        "mode": "interval",
+        "count": "16",
+        "overlap": "0",
+        "interval": "10",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 210,
+        "y": 200,
+        "wires": [
+            [
+                "5e7de0f1911a3c93"
+            ]
+        ]
+    }
+]

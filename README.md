@@ -8,3 +8,32 @@ How you implement the challenge is up to you. The only requirements are that the
 
 Document any design considerations and how to run your code.
 You may use the provided files to test but your entire system will be tested on a different set of files.
+
+## run Airflow
+Into this repository has a docker-compose.yml to run up easy Airflow.
+
+Run these following commands:
+
+#### Create folder (share with container through volume)
+```mkdir -p ./dags ./logs ./plugins ./config```
+
+### Execute the following command
+```echo -e "AIRFLOW_UID=$(id -u)" > .env```
+
+#### Initialize DB
+```docker-compose up airflow-init```
+
+#### Run Airflow 
+```docker-compose up```
+
+if you want run airflow deamon mode
+
+```docker-compose up -d```
+
+## Setup Airflow
+First step is import variables into airflow.
+In the root folder you can figure out variables.json
+
+Seconds step is create two connections:
+- Http connection    
+- Postgres connection

@@ -1,0 +1,7 @@
+.env
+airflow/logs/
+node-red/data/.npm/
+node-red/data/node_modules/
+node-red/data/*.backup
+api/utils/__pycache__/__init__.cpython-38.pyc
+api/utils/__pycache__/base.cpython-38.pyc

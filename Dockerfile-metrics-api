@@ -1,0 +1,6 @@
+FROM python:3.12.0b4-alpine3.18
+COPY ./requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
+COPY ./api ./
+
+CMD ["python3", "metrics.py"]
