@@ -20,13 +20,10 @@ Run these following commands:
 ### Execute the following command
 ```echo -e "AIRFLOW_UID=$(id -u)" > .env```
 
-#### Initialize DB
-```docker-compose up airflow-init```
+#### Initialize the DB, Redis and NodeRed first
+```docker-compose up -d init```
 
-#### Run Airflow 
-```docker-compose up```
-
-if you want run airflow deamon mode
+#### Initialize the other services
 
 ```docker-compose up -d```
 

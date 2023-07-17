@@ -61,8 +61,8 @@ x-airflow-common:
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
@@ -84,7 +84,9 @@ x-airflow-common:
       condition: service_healthy
     postgres:
       condition: service_healthy
-
+    node-red:
+      condition: service_healthy
+    
 services:
   postgres:
     image: postgres:13
@@ -132,7 +134,7 @@ services:
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
-      airflow-init:
+      init:
         condition: service_completed_successfully
 
   airflow-scheduler:
@@ -147,7 +149,7 @@ services:
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
-      airflow-init:
+      init:
         condition: service_completed_successfully
 
   airflow-worker:
@@ -169,7 +171,7 @@ services:
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
-      airflow-init:
+      init:
         condition: service_completed_successfully
 
   airflow-triggerer:
@@ -184,10 +186,10 @@ services:
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
-      airflow-init:
+      init:
         condition: service_completed_successfully
 
-  airflow-init:
+  init:
     <<: *airflow-common
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
@@ -297,7 +299,7 @@ services:
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
-      airflow-init:
+      init:
         condition: service_completed_successfully
 
   node-red:
@@ -311,6 +313,15 @@ services:
       - "1880:1880"
     volumes:
       - ./node-red/data:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:1880"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      - redis
+      - postgres
 
   metrics-api:
     container_name: metrics-api
@@ -323,6 +334,8 @@ services:
       - REDIS_DB=6
     volumes:
       - ./data:/data
+    depends_on:
+      - node-red
   
   workorders-api:
     container_name: workorders-api
@@ -335,6 +348,7 @@ services:
       - REDIS_DB=6
     volumes:
       - ./data:/data
-
+    depends_on:
+      - node-red
 volumes:
   postgres-db-volume:
