@@ -5,7 +5,7 @@ WITH merged_data AS (
     WHERE m.val IS NOT NULL AND w.production IS NOT NULL
 )
 , correlation AS (
-    SELECT product, id, CORR(val, production) AS correlation
+    SELECT product, id, abs(CORR(val, production)) AS correlation
     FROM merged_data
     GROUP BY product, id
 )
