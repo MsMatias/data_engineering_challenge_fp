@@ -70,10 +70,15 @@ Run these following commands:
 [Click here](http://localhost:1880)
 
 ## Airflow UI
-[Click here](http://localhost:1880)
+user: airflow
+password: airflow
+[Click here](http://localhost:8080)
 
 ## Airflow DAG
 The current dag called `report` use PythonOperator in order to perform a query in postgres using PostgresHook and storing the results in data folder as a csv. This DAG will runs hourly.
+
+### Connection
+The database connection is already defined in the docker compose yml, but you can't see it in the connection list because it was defined by environment variables.
 
 ## Node-red and APIs
 As well as Node-red and the APIs will run automatically after start the docker containers.
